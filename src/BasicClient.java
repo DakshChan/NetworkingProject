@@ -3,7 +3,7 @@ import java.io.*;
 import java.net.*;
 
 class BasicClient {
-    final String LOCAL_HOST = "msg.dakshm.com";
+    final String LOCAL_HOST = "127.0.0.1";
     final int PORT = 5000;
     
     Socket clientSocket;      //client socket for connection
