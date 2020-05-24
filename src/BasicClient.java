@@ -1,6 +1,7 @@
 //imports for network communication
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 class BasicClient {
@@ -8,8 +9,8 @@ class BasicClient {
     final int PORT = 5000;
     
     Socket clientSocket;      //client socket for connection
-    BufferedReader input;     //reader for the input stream
-    PrintWriter output;       //writer for the output stream
+    ObjectInputStream input;     //reader for the input stream
+    ObjectOutputStream output;       //writer for the output stream
     boolean running = true;   //program status
     
     public static void main (String[] args) { 
@@ -17,14 +18,13 @@ class BasicClient {
         client.go();
     }
 
-    public void go() { 
+    public void go() {
         //create a socket (try-catch required) and attempt a connection to the local IP address
         System.out.println("Attempting to establish a connection ...");
         try {
             clientSocket = new Socket(LOCAL_HOST, PORT);    //create and bind a socket, and request connection
-            InputStreamReader stream = new InputStreamReader(clientSocket.getInputStream());
-            input = new BufferedReader(stream);
-            output = new PrintWriter(clientSocket.getOutputStream());
+            output = new ObjectOutputStream(clientSocket.getOutputStream());
+            input = new ObjectInputStream(clientSocket.getInputStream());
         } catch (IOException e) {
             System.out.println("Connection to Server Failed");
             e.printStackTrace();
@@ -32,32 +32,20 @@ class BasicClient {
         System.out.println("Connection to server established!");
 
         //wait for response from the server
-        while(running){
+        while(running) {
             try {
 
-                Scanner in = new Scanner(System.in);
-
-                if (input.ready()) {
-                    String msg = input.readLine();
-                    System.out.println(msg);
-
-                    String info = in.nextLine();
-
-                    if (msg.equals("Enter your password"))
-                    {
-                        try {
-                            info = Hash.hashPassword(info);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    output.println(info);
-                    output.flush();
+                if (input.available() > 0) {
+                    Handler handler = (Handler) input.readObject();
+                    System.out.println(handler.getName());
+                    running = false;
                 }
+
 
             } catch (IOException e) {
                 System.out.println("Failed to receive message from the server.");
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
