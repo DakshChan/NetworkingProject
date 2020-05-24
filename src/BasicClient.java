@@ -1,6 +1,7 @@
 //imports for network communication
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
 class BasicClient {
     final String LOCAL_HOST = "127.0.0.1";
@@ -21,7 +22,7 @@ class BasicClient {
         System.out.println("Attempting to establish a connection ...");
         try {
             clientSocket = new Socket(LOCAL_HOST, PORT);    //create and bind a socket, and request connection
-            InputStreamReader stream= new InputStreamReader(clientSocket.getInputStream());
+            InputStreamReader stream = new InputStreamReader(clientSocket.getInputStream());
             input = new BufferedReader(stream);
             output = new PrintWriter(clientSocket.getOutputStream());
         } catch (IOException e) {
@@ -30,18 +31,32 @@ class BasicClient {
         }
         System.out.println("Connection to server established!");
 
-        output.println("Hi. I am a basic client!");         //send a message to the server
-        output.flush();                                     //flush the output stream to make sure the message
-                                                            //was sent but not kept in the buffer (very important!)
         //wait for response from the server
         while(running){
             try {
-                if (input.ready()) {                        //check for an incoming messge
-                    String msg = input.readLine();          //read the message
-                    System.out.println("Message from the server: " + msg);   
-                    running = false;                        //change the status to end the client program
+
+                Scanner in = new Scanner(System.in);
+
+                if (input.ready()) {
+                    String msg = input.readLine();
+                    System.out.println(msg);
+
+                    String info = in.nextLine();
+
+                    if (msg.equals("Enter your password"))
+                    {
+                        try {
+                            info = Hash.hashPassword(info);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    output.println(info);
+                    output.flush();
                 }
-            }catch (IOException e) { 
+
+            } catch (IOException e) {
                 System.out.println("Failed to receive message from the server.");
                 e.printStackTrace();
             }

@@ -24,8 +24,8 @@ class MultiThreadedServer {
             serverSocket = new ServerSocket(PORT);          //create and bind a socket
             while(true) {
                 Socket socket = serverSocket.accept();      //wait for connection request
-                clientCounter = clientCounter +1;
-                System.out.println("Client "+clientCounter+" connected");
+                clientCounter = clientCounter + 1;
+                System.out.println("Client " + clientCounter + " connected");
                 Thread connectionThread = new Thread(new ConnectionHandler(socket));
                 connectionThread.start();                   //start a new thread to handle the connection
             }
@@ -50,18 +50,29 @@ class MultiThreadedServer {
                 InputStreamReader stream = new InputStreamReader(socket.getInputStream());
                 input = new BufferedReader(stream);
                 output = new PrintWriter(socket.getOutputStream());
-            }catch(IOException e) {
+            } catch(IOException e) {
                 e.printStackTrace();
             }
-            
-            output.println("Client "+clientCounter+", you are connected! Time is " + LocalTime.now());   //send a message to the client
-            output.flush();                                 //flush the output stream to make sure the message
-                                                            //was sent but not kept in the buffer (very important!)
-            //get a message from the client
+
+            output.println("Enter your username:");
+            output.flush();
+            System.out.println("msg sent");
+
             try {
                 String msg = input.readLine();
-                System.out.println("Message from the client: " + msg);
-            }catch (IOException e) { 
+                System.out.println(msg);
+            } catch (IOException e) {
+                System.out.println("Failed to receive message from the client.");
+                e.printStackTrace();
+            }
+
+            output.println("Enter your password");
+            output.flush();
+
+            try {
+                String msg = input.readLine();
+                System.out.println(msg);
+            } catch (IOException e) {
                 System.out.println("Failed to receive message from the client.");
                 e.printStackTrace();
             }
