@@ -15,6 +15,7 @@ class MultiThreadedServer {
 
 	public static void main(String[] args) {
 		MultiThreadedServer server = new MultiThreadedServer();
+		Encryption.generateKeys();
 		server.go();
 	}
 
