@@ -48,16 +48,11 @@ class MultiThreadedServer {
 		}
 
 		public void run() {
+			
+			Handler handler = new Handler(socket);
+			
 			try {
-				//InputStreamReader stream = new InputStreamReader(socket.getInputStream());
-				output = new ObjectOutputStream(socket.getOutputStream());
-				input = new ObjectInputStream(socket.getInputStream());
-			} catch(IOException e) {
-				e.printStackTrace();
-			}
-
-			try {
-				Handler handler = new Handler("username", "Enter your username: ");
+				
 				output.writeObject(handler);
 				output.flush();
 

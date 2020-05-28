@@ -43,10 +43,8 @@ public class Decoder {
 		System.out.println(huffmanString);
 		HuffmanTree huffman = new HuffmanTree(huffmanString);
 		System.out.println(huffman);
-
-		int buffer = 0;
+		
 		int temp = 0;
-		byte bufferSize = 0;
 		HuffmanTree.Node priorNode = huffman.head;
 		while ((temp = compressed.read()) != -1) {
 			byte c = (byte) temp;
