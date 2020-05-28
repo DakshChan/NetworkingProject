@@ -43,13 +43,13 @@ class Handler{
 	}
 	
 	//OBJ arr where [0] is String triggerName, [1] is String dataType, [2] is OBJ data
-	public Object[] recieveOBJ (String data) throws IOException {
+	public Object[] recieveOBJ () throws IOException {
 		//dunno
 		return new Object[]{null,null,data};
 	}
 	
 	//OBJ arr where [0] is String triggerName, [1] is String data
-	public String[] recieve (String data) throws IOException {
+	public String[] recieve () throws IOException {
 		//dunno
 		return new String[]{null,data};
 	}

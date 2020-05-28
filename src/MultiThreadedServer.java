@@ -7,19 +7,23 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 
 class MultiThreadedServer {
-	final String LOCAL_HOST = "127.0.0.1";
 	final int PORT = 5000;
 
 	ServerSocket serverSocket;//server socket for connection
 	int clientCounter = 0;
+	
+	ArrayList<Handler> handlers;
 
 	public static void main(String[] args) {
 		MultiThreadedServer server = new MultiThreadedServer();
 		Encryption.generateKeys();
+		
 		server.go();
 	}
 
 	public void go() {
+		handlers = new ArrayList<Handler>();
+		
 		//create a socket with the local IP address (try-catch required) and wait for connection request
 		System.out.println("Waiting for a connection request from a client ...");
 		try {
@@ -42,30 +46,33 @@ class MultiThreadedServer {
 		Socket socket;            //socket to handle
 		ObjectOutputStream output;
 		ObjectInputStream input;
+		public Handler handler;
 
 		public ConnectionHandler(Socket socket) {
 			this.socket = socket;
+			handler = new Handler(socket);
+			synchronized (handlers) {
+				handlers.add(handler);
+			}
 		}
 
 		public void run() {
 			
-			Handler handler = new Handler(socket);
-			
-			try {
-				
-				output.writeObject(handler);
-				output.flush();
-
-			} catch (IOException e) {
+			String[] msg;
+			try{
+				while ((msg = handler.recieve()) != null) {
+					if (msg[0].equals("account")) {
+						//do account stuff
+					} else {
+						synchronized (handlers) {
+							for (Handler h: handlers) {
+								h.send(msg[0], msg[1]);
+							}
+						}
+					}
+				}
+			} catch (Exception e) {
 				e.printStackTrace();
-			}
-
-			//after completing the communication close all streams but do not close the socket
-			try {
-				input.close();
-				output.close();
-			}catch (Exception e) {
-				System.out.println("Failed to close a stream.");
 			}
 		}
 	}
