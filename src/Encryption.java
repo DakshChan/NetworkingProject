@@ -11,6 +11,9 @@ public class Encryption {
 	public static int partialKey;
 	public static int sharedKey;
 
+	long[] p = new long[18];
+	long[][] s = new long[4][256];
+
 	// SERVER ONLY
 	public static void generateKeys() {
 		n = BigInteger.probablePrime(30, new Random()).intValue();
@@ -40,7 +43,15 @@ public class Encryption {
 		sharedKey = (int) (Math.pow(partialKey, clientKey) % n);
 	}
 
+	long f(long x) {
+		long h = s[0][(int) (x >> 24)] + s[1][(int)(x >> 16 & 0xff)];
+		return (h ^ s[2][(int) (x >> 8 & 0xff)]) + s[3][(int) (x & 0xff)];
+	}
+
 	public static String encrypt(String msg) {
+
+		
+
 		return "";
 	}
 
