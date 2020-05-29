@@ -92,6 +92,7 @@ class MultiThreadedServer extends Thread {
 
 		public void run() {
 			String[] msg;
+			String username = "";
 			
 			boolean auth = false;
 			while (!auth) {
@@ -102,7 +103,7 @@ class MultiThreadedServer extends Thread {
 					if (msg[0].equals("createAccount")) {
 						int userNameLength = Integer.parseInt(msg[1].substring(0,1));
 						msg[1] = msg[1].substring(1);
-						String username = msg[1].substring(0,userNameLength);
+						username = msg[1].substring(0,userNameLength);
 						String password =  msg[1].substring(userNameLength);
 						
 						System.out.println(username);
@@ -110,10 +111,11 @@ class MultiThreadedServer extends Thread {
 						//create the account
 						
 						connectionManager.send("Account", "loggedInTrue");
+						auth = true;
 					} else if (msg[0].equals("loginAccount")) {
 						int userNameLength = Integer.parseInt(msg[1].substring(0,1));
 						msg[1] = msg[1].substring(1);
-						String username = msg[1].substring(0,userNameLength);
+						username = msg[1].substring(0,userNameLength);
 						String password =  msg[1].substring(userNameLength);
 						
 						System.out.println(username);
@@ -121,6 +123,7 @@ class MultiThreadedServer extends Thread {
 						//validate login
 						
 						connectionManager.send("Account", "loggedInTrue");
+						auth = true;
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -134,7 +137,7 @@ class MultiThreadedServer extends Thread {
 					msg = connectionManager.receive();
 					synchronized (connectionManagers) {
 						for (ConnectionManager h: connectionManagers) {
-							h.send(msg[0], msg[1]);
+							h.send(msg[0], username + ": " + msg[1]);
 						}
 					}
 				}

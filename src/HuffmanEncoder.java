@@ -20,7 +20,6 @@ public class Encoder {
 		}
 
 		writeString(compressed, (filePath.substring(filePath.lastIndexOf("\\") + 1)));
-		//writeString(compressed, "src/done.jpg");
 		writeString(compressed, "\n");
 
 		AllInOneButTree allButTree = new AllInOneButTree();
@@ -56,7 +55,7 @@ public class Encoder {
 		original = new BufferedInputStream(new FileInputStream(filePath));
 
 		byte writeBuffer = 0x0;
-		byte writebufferLen = 0;
+		byte writeBufferLen = 0;
 		while ((rep = original.read()) != -1) {
 			int huffRep = allButTree.get((byte) rep);
 			byte remainingBytes = 31;
@@ -71,16 +70,16 @@ public class Encoder {
 				} else {
 					writeBuffer = (byte) (writeBuffer << 1);
 				}
-				writebufferLen++;
-				if (writebufferLen == 8) {
+				writeBufferLen++;
+				if (writeBufferLen == 8) {
 					compressed.write(writeBuffer);
 					writeBuffer = 0x0;
-					writebufferLen = 0;
+					writeBufferLen = 0;
 				}
 			}
 		}
-		if (writebufferLen != 0) {
-			writeBuffer = (byte) (writeBuffer << (8 - writebufferLen));
+		if (writeBufferLen != 0) {
+			writeBuffer = (byte) (writeBuffer << (8 - writeBufferLen));
 			compressed.write(writeBuffer);
 		}
 

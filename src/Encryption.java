@@ -3,7 +3,7 @@ import java.util.HashSet;
 import java.util.Random;
 
 public class Encryption {
-
+ 
 	public static int n;
 	public static int g;
 
