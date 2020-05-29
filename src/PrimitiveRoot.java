@@ -7,12 +7,12 @@ public class PrimitiveRoot {
 		final int ROOT_SIZE = 2000;
 		ArrayList<Integer> roots = new ArrayList<>();
 		int m = p - 1;
-		Map<Integer, Integer> primeFactor = getPrimeFactor(m);
+		HashMap<Integer, Integer> primeFactor = getPrimeFactor(m);
 		primeFactor.replaceAll((k, v) -> m / k);
 		for (int i = 2; i <= m && roots.size() < ROOT_SIZE; i++) {
 			boolean notPrimeRoot = false;
 			Set<Integer> reminder = new HashSet<>();
-			for (Map.Entry<Integer, Integer> map : primeFactor.entrySet()) {
+			for (HashMap.Entry<Integer, Integer> map : primeFactor.entrySet()) {
 				if(BigInteger.valueOf(i).modPow(BigInteger.valueOf(map.getValue()), BigInteger.valueOf(p)).equals(BigInteger.ONE))
 					notPrimeRoot = true;
 			}
@@ -32,8 +32,8 @@ public class PrimitiveRoot {
 		return true;
 	}
 
-	private static Map<Integer, Integer> getPrimeFactor(int p) {
-		Map<Integer, Integer> map = new HashMap<>();
+	private static HashMap<Integer, Integer> getPrimeFactor(int p) {
+		HashMap<Integer, Integer> map = new HashMap<>();
 		while (p % 2 == 0) {
 			insertToMap(2, map);
 			p /= 2;
@@ -51,7 +51,7 @@ public class PrimitiveRoot {
 		return map;
 	}
 
-	private static void insertToMap(int i, Map<Integer, Integer> map) {
+	private static void insertToMap(int i, HashMap<Integer, Integer> map) {
 		map.merge(i, 1, Integer::sum);
 	}
 }
