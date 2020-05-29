@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.Socket;
+import java.sql.SQLOutput;
 
 class ConnectionManager {
 	private BufferedWriter out;
@@ -30,21 +31,21 @@ class ConnectionManager {
 //	}
 	
 	public void send (String triggerName, String data) throws IOException {
-		//take data and convert to huffman
+		System.out.println(triggerName + " " + data);
+		//encrypt string data
+		//TODO: figuring out encryption
 		
-		//triggerName
-		//huffman rep
-		//padding bits
-		//data
+		String encrypted = data;
 		
-		//take huffman and encrypt into one line string
+		//compress
+		String compressed = HuffmanEncoder.encode(triggerName, data);
 		
-		//send the string
-		
-		//this test sends the channel and triggerName unencrypted
-		out.write(triggerName + "\n" + data);
-		out.newLine();
+		//send
+		out.write(compressed);
+		out.write("\n");
 		out.flush();
+		
+		System.out.println(compressed);
 	}
 	
 //	//OBJ arr where [0] is String triggerName, [1] is String dataType, [2] is OBJ data
@@ -55,13 +56,27 @@ class ConnectionManager {
 	
 	//OBJ arr where [0] is String triggerName, [1] is String data
 	public String[] receive() throws IOException {
-		String channel = in.readLine();
-		String msg = in.readLine();
+		String data = "";
+		for (int i = 0; i < 4; i++) {
+			data += in.readLine() + "\n";
+		}
 		
-		//unencrypt, unhuffman
+		System.out.println(data);
 		
-		//this returns the message with no channel, just to test receiving
-		return new String[]{channel, msg};
+		//uncompress
+		String[] decompressed = HuffmanDecoder.decode(data);
+		String triggerName = decompressed[0];
+		String encrypted = decompressed[1];
+		
+		//decryption message:
+		//TODO: decryption stuff
+		
+		String message = encrypted;
+		
+		System.out.println(triggerName + " " + message);
+		
+		//this returns the message
+		return new String[]{triggerName, message};
 	}
 	
 	public void close() throws IOException {

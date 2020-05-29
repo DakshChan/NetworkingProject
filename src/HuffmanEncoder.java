@@ -1,63 +1,40 @@
 import java.io.*;
 import java.util.Scanner;
 
-public class Encoder {
-	public static void main(String[] args) throws IOException {
-		BufferedInputStream original = null;
-		BufferedOutputStream compressed = null;
-		String filePath = null;
-		try {
-			Scanner userIn = new Scanner(System.in);
-			System.out.println("Enter a filePath to encode: ");
-			filePath = userIn.next();
-			userIn.close();
-			//filePath = "src/original.jpg";
-			original = new BufferedInputStream(new FileInputStream(filePath));
-			compressed = new BufferedOutputStream(new FileOutputStream(filePath.substring(0, filePath.lastIndexOf("\\")+1)+ "compressed.mzip"));
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(e.hashCode());
-		}
+//Modified from Daksh's Huffman Encoder to work with strings of data;
 
-		writeString(compressed, (filePath.substring(filePath.lastIndexOf("\\") + 1)));
-		writeString(compressed, "\n");
+public class HuffmanEncoder {
+	public static String encode(String triggerName, String data) throws IOException {
+		String encoded = "";
+		
+		encoded += triggerName +'\n';
 
 		AllInOneButTree allButTree = new AllInOneButTree();
 
-		int rep;
-		while ((rep = original.read()) != -1) {
-			allButTree.incrementFreq((byte) rep);
+		byte[] bytes = data.getBytes();
+		
+		for(byte rep: bytes) {
+			allButTree.incrementFreq(rep);
 		}
 
-		System.out.println(allButTree);
 		allButTree.sort();
-		System.out.println(allButTree);
 
-		Tree huffman = new Tree(allButTree);
-		System.out.println(huffman);
-		System.out.println(allButTree);
+		DakshTree huffman = new DakshTree(allButTree);
 
-		writeString(compressed, huffman.toString());
-		writeString(compressed, "\n");
+		encoded += huffman.toString() + '\n';
 
 		if (huffman.getPadding() == 0) {
-			System.out.println(0);
-			writeString(compressed, "" + (0));
+			encoded += "0";
 		} else {
-			System.out.println(8 - huffman.getPadding());
-			writeString(compressed, "" + (8 - huffman.getPadding()));
+			encoded += (8 - huffman.getPadding());
 		}
 
-		writeString(compressed, "\n");
-
-		original.close();
-
-		original = new BufferedInputStream(new FileInputStream(filePath));
+		encoded += '\n';
 
 		byte writeBuffer = 0x0;
 		byte writeBufferLen = 0;
-		while ((rep = original.read()) != -1) {
-			int huffRep = allButTree.get((byte) rep);
+		for (byte rep : bytes) {
+			int huffRep = allButTree.get(rep);
 			byte remainingBytes = 31;
 			while (huffRep > 0) {
 				remainingBytes --;
@@ -72,7 +49,7 @@ public class Encoder {
 				}
 				writeBufferLen++;
 				if (writeBufferLen == 8) {
-					compressed.write(writeBuffer);
+					encoded += writeBuffer;
 					writeBuffer = 0x0;
 					writeBufferLen = 0;
 				}
@@ -80,18 +57,12 @@ public class Encoder {
 		}
 		if (writeBufferLen != 0) {
 			writeBuffer = (byte) (writeBuffer << (8 - writeBufferLen));
-			compressed.write(writeBuffer);
+			encoded += writeBuffer;
 		}
 
-		compressed.close();
+		return encoded;
 	}
-
-	public static void writeString(BufferedOutputStream out, String string) throws IOException {
-		char[] write = string.toCharArray();
-		for (char c: write) {
-			out.write((byte) c);
-		}
-	}
+	
 }
 class Node {
 	private byte rep;
@@ -354,13 +325,13 @@ class AllInOneButTree {
 	}
 }
 
-class Tree {
+class DakshTree {
 
 	Node head;
 	int padding;
 	int freq;
 
-	Tree (AllInOneButTree queue){
+	DakshTree (AllInOneButTree queue){
 		huffmanBuilder(queue);
 		//data is 0x001XXXX where x is huffman rep
 		assignBinaryAndBackToQueue(queue, head, 0x1);

@@ -95,8 +95,8 @@ class MultiThreadedServer extends Thread {
 			String username = "";
 			
 			boolean auth = false;
-			while (!auth) {
-				try {
+			try {
+				while (!auth) {
 					msg = connectionManager.receive();
 					System.out.println(msg[0]);
 					System.out.println(msg[1]);
@@ -125,9 +125,9 @@ class MultiThreadedServer extends Thread {
 						connectionManager.send("Account", "loggedInTrue");
 						auth = true;
 					}
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 			
 			getOld(); //send the client all the old messages
@@ -137,7 +137,7 @@ class MultiThreadedServer extends Thread {
 					msg = connectionManager.receive();
 					synchronized (connectionManagers) {
 						for (ConnectionManager h: connectionManagers) {
-							h.send(msg[0], username + ": " + msg[1]);
+							h.send(msg[0], msg[1]);
 						}
 					}
 				}
