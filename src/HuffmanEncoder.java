@@ -26,7 +26,7 @@ public class HuffmanEncoder {
 		if (huffman.getPadding() == 0) {
 			encoded += "0";
 		} else {
-			encoded += (8 - huffman.getPadding());
+			encoded += (8 - huffman.getPadding()) + "";
 		}
 
 		encoded += '\n';
@@ -49,7 +49,7 @@ public class HuffmanEncoder {
 				}
 				writeBufferLen++;
 				if (writeBufferLen == 8) {
-					encoded += writeBuffer;
+					encoded += (char) writeBuffer;
 					writeBuffer = 0x0;
 					writeBufferLen = 0;
 				}
@@ -57,7 +57,7 @@ public class HuffmanEncoder {
 		}
 		if (writeBufferLen != 0) {
 			writeBuffer = (byte) (writeBuffer << (8 - writeBufferLen));
-			encoded += writeBuffer;
+			encoded += (char) writeBuffer;
 		}
 
 		return encoded;

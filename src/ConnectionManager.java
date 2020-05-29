@@ -44,8 +44,6 @@ class ConnectionManager {
 		out.write(compressed);
 		out.write("\n");
 		out.flush();
-		
-		System.out.println(compressed);
 	}
 	
 //	//OBJ arr where [0] is String triggerName, [1] is String dataType, [2] is OBJ data
@@ -72,8 +70,6 @@ class ConnectionManager {
 		//TODO: decryption stuff
 		
 		String message = encrypted;
-		
-		System.out.println(triggerName + " " + message);
 		
 		//this returns the message
 		return new String[]{triggerName, message};
