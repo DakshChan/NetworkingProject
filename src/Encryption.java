@@ -60,12 +60,8 @@ public class Encryption {
 			Cipher cipher = Cipher.getInstance("Blowfish");
 			cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
 			byte[] encryptedBytes = cipher.doFinal(msg.getBytes());
-			String encryptedStr = new String(Base64.getEncoder().encode(encryptedBytes));
 
-
-			String compressed = null; // = Encoder.encode(encryptedStr);
-
-			return compressed;
+			return new String(Base64.getEncoder().encode(encryptedBytes));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -76,17 +72,13 @@ public class Encryption {
 	public static String decrypt(String msg) {
 
 		try {
-
-			String decompressed = null; // = Decoder.decode(msg);
-
 			byte[] keyData = Integer.toString(sharedKey).getBytes();
 			SecretKeySpec secretKeySpec = new SecretKeySpec(keyData, "Blowfish");
 			Cipher cipher = Cipher.getInstance("Blowfish");
 			cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
-			byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(decompressed));
-			String decryptedString = new String(decryptedBytes);
+			byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(msg));
 
-			return decryptedString;
+			return new String(decryptedBytes);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
