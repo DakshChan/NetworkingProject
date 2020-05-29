@@ -167,6 +167,14 @@ class MultiThreadedServer extends Thread {
 				e.printStackTrace();
 			}
 			
+			for (String s : channels) {
+				try {
+					connectionManager.send("channelInfo", s);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
 			getOld(); //send the client all the old messages
 			
 			try{
