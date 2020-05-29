@@ -1,7 +1,8 @@
 import java.io.*;
 import java.util.Scanner;
 
-public class Decoder {
+//Stolen from Daksh's
+public class HuffmanDecoder {
 	public static void main(String[] args) throws IOException {
 		BufferedInputStream compressed = null;
 		BufferedOutputStream decompressed = null;

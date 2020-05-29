@@ -7,7 +7,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.SecretKeySpec;
 
 public class Encryption {
-
+ 
 	public static int n;
 	public static int g;
 
