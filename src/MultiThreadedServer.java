@@ -2,7 +2,6 @@
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 class MultiStart {
 
@@ -43,7 +42,7 @@ class MultiThreadedServer extends Thread {
 	ServerSocket serverSocket;//server socket for connection
 	int clientCounter = 0;
 	
-	ArrayList<Handler> handlers;
+	ArrayList<ConnectionManager> connectionManagers;
 	
 	ArrayList<String> channels;
 	
@@ -52,7 +51,7 @@ class MultiThreadedServer extends Thread {
 	}
 
 	public void start() {
-		handlers = new ArrayList<Handler>();
+		connectionManagers = new ArrayList<ConnectionManager>();
 		
 		//create a socket with the local IP address (try-catch required) and wait for connection request
 		
@@ -77,32 +76,59 @@ class MultiThreadedServer extends Thread {
 		Socket socket;            //socket to handle
 		ObjectOutputStream output;
 		ObjectInputStream input;
-		public Handler handler;
+		public ConnectionManager connectionManager;
 
 		public ConnectionHandler(Socket socket) {
 			this.socket = socket;
-			handler = new Handler(socket);
-			synchronized (handlers) {
-				handlers.add(handler);
+			try {
+				connectionManager = new ConnectionManager(socket);
+				synchronized (connectionManagers) {
+					connectionManagers.add(connectionManager);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			
-			
 		}
 
 		public void run() {
-			
 			String[] msg;
-			try{
-				while ((msg = handler.recieve()) != null) {
-					if (msg[0].equals("account")) {
-						//do account stuff
-					} else {
+			
+			boolean auth = false;
+			while (!auth) {
+				try {
+					msg = connectionManager.receive();
+					if (msg[0] == "createAccount") {
+						int userNameLength = Integer.parseInt(msg[1].substring(0,1));
+						msg[1] = msg[1].substring(1);
+						String username = msg[1].substring(0,userNameLength);
+						String password =  msg[1].substring(userNameLength);
 						
-						synchronized (handlers) {
-							for (Handler h: handlers) {
-								h.send(msg[0], msg[1]);
-							}
-
+						//create the account
+						
+						connectionManager.send("Account", "loggedInTrue");
+					} else if (msg[0] == "loginAccount") {
+						int userNameLength = Integer.parseInt(msg[1].substring(0,1));
+						msg[1] = msg[1].substring(1);
+						String username = msg[1].substring(0,userNameLength);
+						String password =  msg[1].substring(userNameLength);
+						
+						//validate login
+						
+						connectionManager.send("Account", "loggedInTrue");
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			getOld(); //send the client all the old messages
+			
+			try{
+				while (connectionManager.alive()) {
+					msg = connectionManager.receive();
+					synchronized (connectionManagers) {
+						for (ConnectionManager h: connectionManagers) {
+							h.send(msg[0], msg[1]);
 						}
 					}
 				}
@@ -112,7 +138,7 @@ class MultiThreadedServer extends Thread {
 		}
 		
 		private void getOld() {
-		
+			return;
 		}
 	}
 	
@@ -133,7 +159,6 @@ class MultiThreadedServer extends Thread {
 					e.printStackTrace();
 				}
 			}
-			
 		}
 	}
 }
