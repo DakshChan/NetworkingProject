@@ -38,6 +38,7 @@ public class BasicClient {
 		while(running) {
 			try {
 				msg = connectionManager.receive();
+				System.out.println(msg[0]);
 				System.out.println(msg[1]);
 			} catch (IOException e) {
 				System.out.println("Failed to receive message from the server.");

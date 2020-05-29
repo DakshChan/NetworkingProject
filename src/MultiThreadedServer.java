@@ -97,21 +97,27 @@ class MultiThreadedServer extends Thread {
 			while (!auth) {
 				try {
 					msg = connectionManager.receive();
-					if (msg[0] == "createAccount") {
+					System.out.println(msg[0]);
+					System.out.println(msg[1]);
+					if (msg[0].equals("createAccount")) {
 						int userNameLength = Integer.parseInt(msg[1].substring(0,1));
 						msg[1] = msg[1].substring(1);
 						String username = msg[1].substring(0,userNameLength);
 						String password =  msg[1].substring(userNameLength);
 						
+						System.out.println(username);
+						System.out.println(password);
 						//create the account
 						
 						connectionManager.send("Account", "loggedInTrue");
-					} else if (msg[0] == "loginAccount") {
+					} else if (msg[0].equals("loginAccount")) {
 						int userNameLength = Integer.parseInt(msg[1].substring(0,1));
 						msg[1] = msg[1].substring(1);
 						String username = msg[1].substring(0,userNameLength);
 						String password =  msg[1].substring(userNameLength);
 						
+						System.out.println(username);
+						System.out.println(password);
 						//validate login
 						
 						connectionManager.send("Account", "loggedInTrue");

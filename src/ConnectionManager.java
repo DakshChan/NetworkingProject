@@ -13,10 +13,10 @@ class ConnectionManager {
 			out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 			in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			System.out.println("created");
+			alive = true;
 		} catch (IOException e) {
 			throw e;
 		}
-		alive = true;
 	}
 	
 //	//overload this method for different data types
@@ -41,8 +41,8 @@ class ConnectionManager {
 		
 		//send the string
 		
-		//this sends only the message as a line to test sending
-		out.write(data);
+		//this test sends the channel and triggerName unencrypted
+		out.write(triggerName + "\n" + data);
 		out.newLine();
 		out.flush();
 	}
@@ -55,12 +55,13 @@ class ConnectionManager {
 	
 	//OBJ arr where [0] is String triggerName, [1] is String data
 	public String[] receive() throws IOException {
+		String channel = in.readLine();
 		String msg = in.readLine();
 		
 		//unencrypt, unhuffman
 		
 		//this returns the message with no channel, just to test receiving
-		return new String[]{"testChannel",msg};
+		return new String[]{channel, msg};
 	}
 	
 	public void close() throws IOException {
