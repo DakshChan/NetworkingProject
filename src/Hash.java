@@ -7,11 +7,11 @@ import java.security.spec.InvalidKeySpecException;
 
 public class Hash {
 
-	public static String hashPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+	public static String hashPassword(String username, String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
 
 		final int ITERATIONS = 1000;
 		char[] chars = password.toCharArray();
-		byte[] salt = getSalt();
+		byte[] salt = username.getBytes();
 
 		PBEKeySpec spec = new PBEKeySpec(chars, salt, ITERATIONS, 64 * 8);
 		SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
@@ -20,12 +20,13 @@ public class Hash {
 		return toHex(hash);
 	}
 
-	private static byte[] getSalt() throws NoSuchAlgorithmException {
+	// Use for random salt generation
+	/*private static byte[] getSalt() throws NoSuchAlgorithmException {
 		SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
 		byte[] salt = new byte[16];
 		sr.nextBytes(salt);
 		return salt;
-	}
+	}*/
 
 	private static String toHex(byte[] array) {
 		BigInteger bi = new BigInteger(1, array);

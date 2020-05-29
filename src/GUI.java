@@ -9,6 +9,7 @@ public class GUI extends Frame implements Runnable, ActionListener {
 	private BasicClient client;
 	private JFrame frame;
 	StartMenu startMenu;
+	UserPage userPage;
 
 	public GUI(BasicClient client) {
 
@@ -28,6 +29,13 @@ public class GUI extends Frame implements Runnable, ActionListener {
 		frame.add(startMenu.panel);
 		frame.validate();
 
+	}
+
+	public void logIn() {
+		frame.remove(startMenu.panel);
+		userPage = new UserPage();
+		frame.add(userPage.panel);
+		frame.validate();
 	}
 
 	private class StartMenu {
@@ -91,6 +99,25 @@ public class GUI extends Frame implements Runnable, ActionListener {
 
 			createAccount = new JButton("Create Account");
 			panel.add(createAccount);
+
+			return panel;
+		}
+
+	}
+
+	public class UserPage {
+
+		public JPanel panel;
+
+		UserPage() {
+			panel = new JPanel();
+			panel = userPagePanel();
+		}
+
+		public JPanel userPagePanel() {
+			JPanel panel = new JPanel();
+
+			panel.add(new Label("Welcome"));
 
 			return panel;
 		}

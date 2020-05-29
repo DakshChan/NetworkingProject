@@ -38,8 +38,12 @@ public class BasicClient {
 		while(running) {
 			try {
 				msg = connectionManager.receive();
-				System.out.println(msg[0]);
-				System.out.println(msg[1]);
+
+				if (msg[0].equals("Account") && msg[1].equals("loggedInTrue")) {
+					System.out.println("Logged In Successfully");
+					gui.logIn();
+				}
+
 			} catch (IOException e) {
 				System.out.println("Failed to receive message from the server.");
 				e.printStackTrace();

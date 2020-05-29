@@ -4,10 +4,12 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 class MultiStart {
 
 	public static void main(String[] args) {
+
 		//Encryption.generateKeys();
 		
 		ArrayList<String> channels = new ArrayList<>();
@@ -22,14 +24,17 @@ class MultiStart {
 			}
 		});
 		
-		HashMap<String, String> accounts = new HashMap<>();
+		//HashMap<String, String> accounts = new HashMap<>();
+		ArrayList<User> accounts = new ArrayList<>();
 		
 		try {
 			BufferedReader a = new BufferedReader(new FileReader("acc.data"));
 			String aline;
 			while ((aline = a.readLine()) != null) {
-				String p = a.readLine();
-				accounts.put(aline, p);
+				String[] user = aline.split(":");
+				String username = user[0];
+				String password = user[1];
+				accounts.add(new User(username, password));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -62,9 +67,9 @@ class MultiThreadedServer extends Thread {
 	
 	MultiThreadedServer.FileHandler fileHandler;
 	
-	HashMap<String, String> accounts;
+	ArrayList<User> accounts;
 	
-	MultiThreadedServer(ArrayList<String> channels, ArrayList<File> files, HashMap<String, String> accounts) {
+	MultiThreadedServer(ArrayList<String> channels, ArrayList<File> files, ArrayList<User> accounts) {
 		this.channels = channels;
 		this.fileHandler = new MultiThreadedServer.FileHandler(channels, files);
 		this.accounts = accounts;
@@ -118,41 +123,46 @@ class MultiThreadedServer extends Thread {
 			try {
 				while (!auth) {
 					msg = connectionManager.receive();
-					System.out.println(msg[0]);
-					System.out.println(msg[1]);
+
 					if (msg[0].equals("createAccount")) {
+
 						int userNameLength = Integer.parseInt(msg[1].substring(0,1));
 						msg[1] = msg[1].substring(1);
 						username = msg[1].substring(0,userNameLength);
-						String password =  msg[1].substring(userNameLength);
-						
-						System.out.println(username);
-						System.out.println(password);
-						//create the account
-						accounts.put(username, password);
-						
+						String password = msg[1].substring(userNameLength);
+
+						try {
+							password = Hash.hashPassword(username, password);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+
+						accounts.add(new User(username, password));
+
 						BufferedWriter w = new BufferedWriter(new FileWriter("acc.data", true));
-						w.write(username);
-						w.newLine();
-						w.write(password);
+						w.write(username + ":" + password);
 						w.newLine();
 						w.flush();
 						w.close();
 						
 						connectionManager.send("Account", "loggedInTrue");
 						auth = true;
+
 					} else if (msg[0].equals("loginAccount")) {
+
 						int userNameLength = Integer.parseInt(msg[1].substring(0,1));
 						msg[1] = msg[1].substring(1);
 						username = msg[1].substring(0,userNameLength);
 						String password =  msg[1].substring(userNameLength);
 						
-						System.out.println(username);
-						System.out.println(password);
+						//System.out.println(username);
+						//try { System.out.println(Hash.hashPassword(username, password)); } catch (Exception e) { e.printStackTrace(); }
+
 						//validate login
 						
 						try {
-							if (accounts.get(username).equals(password)) {
+							if (accounts.contains(new User(username, Hash.hashPassword(username, password)))) {
+								System.out.println("sent response");
 								connectionManager.send("Account", "loggedInTrue");
 								auth = true;
 							} else {
@@ -162,6 +172,7 @@ class MultiThreadedServer extends Thread {
 							e.printStackTrace();
 						}
 					}
+
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
