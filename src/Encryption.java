@@ -1,6 +1,10 @@
 import java.math.BigInteger;
-import java.util.HashSet;
+import java.security.spec.ECField;
+import java.util.Base64;
 import java.util.Random;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.SecretKeySpec;
 
 public class Encryption {
 
@@ -50,13 +54,44 @@ public class Encryption {
 
 	public static String encrypt(String msg) {
 
-		
+		try {
+			byte[] keyData = Integer.toString(sharedKey).getBytes();
+			SecretKeySpec secretKeySpec = new SecretKeySpec(keyData, "Blowfish");
+			Cipher cipher = Cipher.getInstance("Blowfish");
+			cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+			byte[] encryptedBytes = cipher.doFinal(msg.getBytes());
+			String encryptedStr = new String(Base64.getEncoder().encode(encryptedBytes));
 
-		return "";
+
+			String compressed = null; // = Encoder.encode(encryptedStr);
+
+			return compressed;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
 	}
 
 	public static String decrypt(String msg) {
-		return "";
+
+		try {
+
+			String decompressed = null; // = Decoder.decode(msg);
+
+			byte[] keyData = Integer.toString(sharedKey).getBytes();
+			SecretKeySpec secretKeySpec = new SecretKeySpec(keyData, "Blowfish");
+			Cipher cipher = Cipher.getInstance("Blowfish");
+			cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+			byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(decompressed));
+			String decryptedString = new String(decryptedBytes);
+
+			return decryptedString;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+
 	}
 
 }
