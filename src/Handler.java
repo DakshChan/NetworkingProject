@@ -45,12 +45,12 @@ class Handler{
 	//OBJ arr where [0] is String triggerName, [1] is String dataType, [2] is OBJ data
 	public Object[] recieveOBJ () throws IOException {
 		//dunno
-		return new Object[]{null,null,data};
+		return new Object[]{null,null,null};
 	}
 	
 	//OBJ arr where [0] is String triggerName, [1] is String data
 	public String[] recieve () throws IOException {
 		//dunno
-		return new String[]{null,data};
+		return new String[]{null,null};
 	}
 }

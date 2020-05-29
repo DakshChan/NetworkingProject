@@ -37,7 +37,7 @@ class BasicClient {
 
 				if (input.available() > 0) {
 					Handler handler = (Handler) input.readObject();
-					System.out.println(handler.getName());
+					//System.out.println(handler.getName());
 					running = false;
 				}
 
