@@ -1,17 +1,15 @@
 //imports for network communication
 import java.io.*;
 import java.net.*;
-import java.sql.Time;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 class MultiStart {
+
 	public static void main(String[] args) {
 		Encryption.generateKeys();
 		
-		ArrayList<String> channels = new ArrayList<String>();
+		ArrayList<String> channels = new ArrayList<>();
 		//import channels
 		
 		File dir = new File(".");
@@ -36,6 +34,7 @@ class MultiStart {
 		//UI Code here
 		
 	}
+
 }
 
 class MultiThreadedServer extends Thread {
@@ -103,6 +102,7 @@ class MultiThreadedServer extends Thread {
 							for (Handler h: handlers) {
 								h.send(msg[0], msg[1]);
 							}
+
 						}
 					}
 				}

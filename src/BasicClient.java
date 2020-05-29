@@ -4,7 +4,8 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-class BasicClient {
+public class BasicClient {
+
 	final String LOCAL_HOST = "127.0.0.1";
 	final int PORT = 5000;
 
@@ -19,6 +20,11 @@ class BasicClient {
 	}
 
 	public void go() {
+
+		GUI gui = new GUI(this);
+		Thread thread = new Thread(gui);
+		thread.start();
+
 		//create a socket (try-catch required) and attempt a connection to the local IP address
 		System.out.println("Attempting to establish a connection ...");
 		try {
@@ -59,4 +65,16 @@ class BasicClient {
 			System.out.println("Failed to close stream or/and socket.");
 		}
 	}
+
+	public void createAccount(String username, String password) {
+		System.out.println(username);
+		System.out.println(password);
+		// send a request to server
+		// once the server gets the request, build a user and add it to the database
+	}
+
+	public void logIn(String username, String password) {
+
+	}
+
 }
