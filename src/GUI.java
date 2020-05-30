@@ -111,6 +111,7 @@ public class GUI extends Frame implements Runnable, ActionListener {
 
 		public JPanel panel;
 		public JList<String> list;
+		private int currentIndex;
 
 		UserPage() {
 			panel = new JPanel();
@@ -147,6 +148,19 @@ public class GUI extends Frame implements Runnable, ActionListener {
 			return panel;
 		}
 
+		public void selectedChat(int index)
+		{
+			// update the chat
+		}
+
+		public void updateTab(int index) {
+			if (index != currentIndex)
+			{
+				currentIndex = index;
+				selectedChat(index);
+			}
+		}
+
 	}
 
 	@Override
@@ -154,7 +168,7 @@ public class GUI extends Frame implements Runnable, ActionListener {
 		while (true) {
 			if (userPage != null)
 			{
-				System.out.println(userPage.list.getSelectedIndex());
+				userPage.updateTab(userPage.list.getSelectedIndex());
 			}
 		}
 	}
