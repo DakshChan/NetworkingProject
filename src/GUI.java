@@ -3,6 +3,7 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.TimeUnit;
 
 public class GUI extends Frame implements Runnable, ActionListener {
 
@@ -34,11 +35,12 @@ public class GUI extends Frame implements Runnable, ActionListener {
 	public void logIn() {
 		frame.remove(startMenu.panel);
 		userPage = new UserPage();
-		frame.add(userPage.panel);
+		frame.setLayout(new BorderLayout());
+		frame.add(userPage.panel, BorderLayout.CENTER);
 		frame.validate();
 	}
 
-	private class StartMenu {
+	private static class StartMenu {
 
 		public JPanel panel;
 		public JButton createAccount, logIn;
@@ -105,9 +107,10 @@ public class GUI extends Frame implements Runnable, ActionListener {
 
 	}
 
-	public class UserPage {
+	public static class UserPage {
 
 		public JPanel panel;
+		public JList<String> list;
 
 		UserPage() {
 			panel = new JPanel();
@@ -115,9 +118,31 @@ public class GUI extends Frame implements Runnable, ActionListener {
 		}
 
 		public JPanel userPagePanel() {
-			JPanel panel = new JPanel();
+			JPanel panel = new JPanel(new GridBagLayout());
+			GridBagConstraints c = new GridBagConstraints();
+			c.weightx = 1.0;
+			c.weighty = 1.0;
+			c.fill = GridBagConstraints.BOTH;
 
-			panel.add(new Label("Welcome"));
+			JPanel channels = new JPanel();
+			channels.setLayout(new BoxLayout(channels, BoxLayout.PAGE_AXIS));
+			DefaultListModel<String> listModel = new DefaultListModel<>();
+			for (int i = 0; i < 50; i++)
+				listModel.addElement("Test");
+			list = new JList<>(listModel);
+			JScrollPane scrollPane = new JScrollPane(list);
+			channels.add(scrollPane);
+			c.gridwidth = 1;
+			c.gridx = 0;
+			c.gridy = 0;
+			panel.add(channels, c);
+
+			JPanel chat = new JPanel();
+			chat.add(new Label("Chat"));
+			c.weightx = 6;
+			c.gridx = 1;
+			c.gridy = 0;
+			panel.add(chat, c);
 
 			return panel;
 		}
@@ -126,12 +151,12 @@ public class GUI extends Frame implements Runnable, ActionListener {
 
 	@Override
 	public void run() {
-		// IDK What to put here yet
-	}
-
-	public static void main(String[] args) {
-		/*Thread thread = new Thread(new GUI());
-		thread.start();*/
+		while (true) {
+			if (userPage != null)
+			{
+				System.out.println(userPage.list.getSelectedIndex());
+			}
+		}
 	}
 
 	@Override
