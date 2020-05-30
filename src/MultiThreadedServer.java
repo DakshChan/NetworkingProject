@@ -154,9 +154,6 @@ class MultiThreadedServer extends Thread {
 						msg[1] = msg[1].substring(1);
 						username = msg[1].substring(0,userNameLength);
 						String password =  msg[1].substring(userNameLength);
-						
-						//System.out.println(username);
-						//try { System.out.println(Hash.hashPassword(username, password)); } catch (Exception e) { e.printStackTrace(); }
 
 						//validate login
 						
@@ -171,6 +168,7 @@ class MultiThreadedServer extends Thread {
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
+
 					}
 
 				}
@@ -189,8 +187,10 @@ class MultiThreadedServer extends Thread {
 			getOld(); //send the client all the old messages
 			
 			try{
+				System.out.println(connectionManager.alive());
 				while (connectionManager.alive()) {
 					msg = connectionManager.receive();
+					System.out.println(msg[1]);
 					synchronized (connectionManagers) {
 						for (ConnectionManager h: connectionManagers) {
 							h.send(msg[0], msg[1]);
@@ -257,7 +257,7 @@ class MultiThreadedServer extends Thread {
 			int i = channels.indexOf(channelName);
 			if (i != -1) {
 				try {
-					ArrayList<String> history = new ArrayList<String>();
+					ArrayList<String> history = new ArrayList<>();
 					BufferedReader r = new BufferedReader(new FileReader(files.get(i).getAbsolutePath()));
 					String line;
 					while ((line = r.readLine()) != null) {

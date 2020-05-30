@@ -1,6 +1,7 @@
 //imports for network communication
 import java.io.*;
 import java.net.*;
+import java.security.spec.ECField;
 
 public class BasicClient {
 
@@ -81,6 +82,14 @@ public class BasicClient {
 		try {
 			connectionManager.send("loginAccount", username.length() + username + password);
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void addFriend(String username) {
+		try {
+			connectionManager.send("addFriend", username);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

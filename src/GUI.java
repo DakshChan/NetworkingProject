@@ -1,8 +1,12 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.security.DigestException;
 import java.util.concurrent.TimeUnit;
 
 public class GUI extends Frame implements Runnable, ActionListener {
@@ -35,9 +39,19 @@ public class GUI extends Frame implements Runnable, ActionListener {
 	public void logIn() {
 		frame.remove(startMenu.panel);
 		userPage = new UserPage();
+		userPage.addFriend.addActionListener(this);
 		frame.setLayout(new BorderLayout());
 		frame.add(userPage.panel, BorderLayout.CENTER);
 		frame.validate();
+
+		Thread thread = new Thread(new ActionListener(this));
+		thread.start();
+
+	}
+
+	public void addFriendOption() {
+		String username = JOptionPane.showInputDialog(frame, "Enter Friend's Username:");
+		System.out.println(username);
 	}
 
 	private static class StartMenu {
@@ -111,11 +125,16 @@ public class GUI extends Frame implements Runnable, ActionListener {
 
 		public JPanel panel;
 		public JList<String> list;
+		public  JButton addFriend;
+
 		private int currentIndex;
+
+		public JLabel testLabel;
 
 		UserPage() {
 			panel = new JPanel();
 			panel = userPagePanel();
+			currentIndex = 0;
 		}
 
 		public JPanel userPagePanel() {
@@ -125,6 +144,21 @@ public class GUI extends Frame implements Runnable, ActionListener {
 			c.weighty = 1.0;
 			c.fill = GridBagConstraints.BOTH;
 
+			JPanel banner = new JPanel();
+			banner.setLayout(new BoxLayout(banner, BoxLayout.PAGE_AXIS));
+			JLabel icon = new JLabel();
+			icon.setIcon(new ImageIcon(getClass().getResource("assets/logo.png")));
+			icon.setAlignmentX(Component.CENTER_ALIGNMENT);
+			banner.add(icon);
+			//banner.add(Box.createRigidArea(new Dimension(0, 10))); add space between the elements
+			addFriend = new JButton("Add Friend");
+			addFriend.setAlignmentX(Component.CENTER_ALIGNMENT);
+			banner.add(addFriend);
+			c.weighty = 0;
+			c.gridy = 0;
+			c.gridx = 0;
+			panel.add(banner, c);
+
 			JPanel channels = new JPanel();
 			channels.setLayout(new BoxLayout(channels, BoxLayout.PAGE_AXIS));
 			DefaultListModel<String> listModel = new DefaultListModel<>();
@@ -133,14 +167,16 @@ public class GUI extends Frame implements Runnable, ActionListener {
 			list = new JList<>(listModel);
 			JScrollPane scrollPane = new JScrollPane(list);
 			channels.add(scrollPane);
-			c.gridwidth = 1;
+			c.weighty = 1;
 			c.gridx = 0;
-			c.gridy = 0;
+			c.gridy = 1;
 			panel.add(channels, c);
 
 			JPanel chat = new JPanel();
-			chat.add(new Label("Chat"));
-			c.weightx = 6;
+			testLabel = new JLabel("0");
+			chat.add(testLabel);
+			c.weightx = 100;
+			c.gridheight = 2;
 			c.gridx = 1;
 			c.gridy = 0;
 			panel.add(chat, c);
@@ -150,10 +186,10 @@ public class GUI extends Frame implements Runnable, ActionListener {
 
 		public void selectedChat(int index)
 		{
-			// update the chat
+			testLabel.setText(Integer.toString(index));
 		}
 
-		public void updateTab(int index) {
+		public synchronized void updateTab(int index) {
 			if (index != currentIndex)
 			{
 				currentIndex = index;
@@ -163,14 +199,34 @@ public class GUI extends Frame implements Runnable, ActionListener {
 
 	}
 
-	@Override
-	public void run() {
-		while (true) {
-			if (userPage != null)
-			{
-				userPage.updateTab(userPage.list.getSelectedIndex());
+	public static class ActionListener implements Runnable {
+
+		private GUI gui;
+
+		ActionListener(GUI gui) {
+			this.gui = gui;
+		}
+
+		public void onEvent() {
+			while (true) {
+				if (gui.userPage != null) {
+					gui.userPage.updateTab(gui.userPage.list.getSelectedIndex());
+				}
+
+				// if (some other stuff to listen to)
+
 			}
 		}
+
+		@Override
+		public void run() {
+			onEvent();
+		}
+	}
+
+	@Override
+	public void run() {
+
 	}
 
 	@Override
@@ -181,6 +237,8 @@ public class GUI extends Frame implements Runnable, ActionListener {
 				client.createAccount(startMenu.c_name.getText(), startMenu.c_password.getText());
 		} else if (e.getSource() == startMenu.logIn) {
 			client.logIn(startMenu.l_name.getText(), startMenu.l_password.getText());
+		} else if (e.getSource() == userPage.addFriend) {
+			addFriendOption();
 		}
 
 	}
