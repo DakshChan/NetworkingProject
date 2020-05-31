@@ -12,6 +12,7 @@ public class GUI extends Frame implements Runnable, ActionListener {
 	private JFrame frame;
 	StartMenu startMenu;
 	UserPage userPage;
+	public static String currentId;
 
 	public enum OptionType {
 		INPUT_NAME,
@@ -43,6 +44,7 @@ public class GUI extends Frame implements Runnable, ActionListener {
 		frame.remove(startMenu.panel);
 		userPage = new UserPage();
 		userPage.addFriend.addActionListener(this);
+		userPage.sendMessage.addActionListener(this);
 		frame.setLayout(new BorderLayout());
 		frame.add(userPage.panel, BorderLayout.CENTER);
 		frame.validate();
@@ -137,21 +139,17 @@ public class GUI extends Frame implements Runnable, ActionListener {
 	}
 
 
-
-	// ---------------------------------------------
-
-
-
 	private class UserPage {
 
 		public JPanel panel;
 
 		public JList<String> list;
-		public  JButton addFriend;
+		public  JButton addFriend, sendMessage;
+		public JTextArea message;
 		public JScrollPane scrollPane;
 		DefaultListModel<String> listModel;
 
-		public JLabel testLabel;
+		public JLabel chatInfo;
 
 		UserPage() {
 			panel = new JPanel();
@@ -167,6 +165,7 @@ public class GUI extends Frame implements Runnable, ActionListener {
 			c.weighty = 1.0;
 			c.fill = GridBagConstraints.BOTH;
 
+			// Banner
 			JPanel banner = new JPanel();
 			banner.setLayout(new BoxLayout(banner, BoxLayout.PAGE_AXIS));
 			JLabel icon = new JLabel();
@@ -181,24 +180,61 @@ public class GUI extends Frame implements Runnable, ActionListener {
 			c.gridy = 0;
 			c.gridx = 0;
 			panel.add(banner, c);
+			//--------------------------------------
 
+			// List of Chats
 			JPanel channels = new JPanel();
 			channels.setLayout(new BoxLayout(channels, BoxLayout.PAGE_AXIS));
-
 			channels.add(scrollPane);
 			c.weighty = 1;
 			c.gridx = 0;
 			c.gridy = 1;
 			panel.add(channels, c);
+			// ----------------------------------
 
-			JPanel chat = new JPanel();
-			testLabel = new JLabel("0");
-			chat.add(testLabel);
+			// Chat Panel
+			JPanel chat = new JPanel(new GridBagLayout());
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.weighty = 1;
+			constraints.weightx = 1;
+			constraints.fill = GridBagConstraints.BOTH;
+			chatInfo = new JLabel("No Chat Selected", SwingConstants.CENTER);
+			chatInfo.setFont(new Font("Serif", Font.PLAIN, 20));
+			JScrollPane jsp1 = new JScrollPane(chatInfo);
+			constraints.gridx = 0;
+			constraints.gridy = 0;
+			constraints.gridwidth = 2;
+			constraints.weighty = 20;
+			chat.add(jsp1, constraints);
+
+			JPanel messages = new JPanel();
+			constraints.gridx = 0;
+			constraints.gridy = 1;
+			constraints.gridwidth = 2;
+			constraints.weighty = 500;
+			chat.add(messages, constraints);
+
+			message = new JTextArea();
+			JScrollPane jsp2 = new JScrollPane(message);
+			constraints.gridx = 0;
+			constraints.gridy = 2;
+			constraints.gridwidth = 1;
+			constraints.weighty = 0;
+			constraints.weightx = 100;
+			chat.add(jsp2, constraints);
+
+			sendMessage = new JButton("Send");
+			constraints.gridx = 1;
+			constraints.gridy = 2;
+			constraints.weightx = 10;
+			chat.add(sendMessage, constraints);
+
 			c.weightx = 100;
 			c.gridheight = 2;
 			c.gridx = 1;
 			c.gridy = 0;
 			panel.add(chat, c);
+			//----------------------------------------------------------
 
 			return panel;
 		}
@@ -212,7 +248,8 @@ public class GUI extends Frame implements Runnable, ActionListener {
 
 		public void selectedChat(int index)
 		{
-			testLabel.setText(Integer.toString(index));
+			chatInfo.setText(client.chats.get(index).name);
+			currentId = client.chats.get(index).id;
 		}
 
 		class SharedListSelectionHandler implements ListSelectionListener {
@@ -243,6 +280,10 @@ public class GUI extends Frame implements Runnable, ActionListener {
 			client.logIn(startMenu.l_name.getText(), startMenu.l_password.getText());
 		} else if (e.getSource() == userPage.addFriend) {
 			addFriendOption(OptionType.INPUT_NAME, null);
+		} else if (e.getSource() == userPage.sendMessage) {
+			Message message = new Message(client.username, userPage.message.getText());
+			client.sendMessage(message, currentId);
+			userPage.message.setText("");
 		}
 
 	}

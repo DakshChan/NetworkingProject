@@ -196,19 +196,29 @@ class MultiThreadedServer extends Thread {
 						if (index != -1) {
 							System.out.println("Found");
 							User friend = accounts.get(index);
-							connectionManager.send("addFriend", friend.getName());
+							Chat chat = new Chat(friend.getName());
+							connectionManager.send("addFriend", chat.id + "\0" + chat.name);
 						} else {
 							System.out.println("Not found");
 							connectionManager.send("addFriend", "friendNotFound");
 						}
 
-					}
+					} else if (msg[0].equals("sendMessage")) {
+						//System.out.println(msg[1]);
+						String[] data = msg[1].split("\0");
+						String id = data[0];
+						String message = data[1];
+						Chat chat = Chat.chats.get(Chat.chats.indexOf(new Chat(id)));
+						for (User users : chat.users) {
 
-					/*synchronized (connectionManagers) {
-						for (ConnectionManager h: connectionManagers) {
-							h.send(msg[0], msg[1]);
+							synchronized (connectionManagers) {
+								for (ConnectionManager h: connectionManagers) {
+									h.send(msg[0], msg[1]);
+								}
+							}
+
 						}
-					}*/
+					}
 
 				}
 			} catch (Exception e) {

@@ -31,6 +31,6 @@ public class User {
 		return user.name.equals(this.name);
 	}
 
-	public String getName() { return name;  }
+	public String getName() { return name; }
 
 }

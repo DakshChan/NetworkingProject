@@ -1,12 +1,15 @@
 //imports for network communication
 import java.io.*;
 import java.net.*;
-import java.security.spec.ECField;
+import java.util.ArrayList;
 
 public class BasicClient {
 
 	final String LOCAL_HOST = "127.0.0.1";
 	final int PORT = 5000;
+
+	public ArrayList<Chat> chats = new ArrayList<>();
+	public String username;
 
 	Socket clientSocket;      //client socket for connection
 	ConnectionManager connectionManager;
@@ -46,7 +49,11 @@ public class BasicClient {
 					if (msg[1].equals("friendNotFound")) {
 						gui.addFriendOption(GUI.OptionType.NO_MATCH, null);
 					} else {
-						gui.addFriendOption(GUI.OptionType.FOUND_MATCH, msg[1]);
+						String[] data = msg[1].split("\0");
+						String id = data[0];
+						String name = data[1];
+						chats.add(new Chat(name, id));
+						gui.addFriendOption(GUI.OptionType.FOUND_MATCH, name);
 					}
 				}
 
@@ -78,6 +85,7 @@ public class BasicClient {
 		
 		try {
 			connectionManager.send("createAccount", username.length() + username + password);
+			this.username = username;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -86,6 +94,7 @@ public class BasicClient {
 	public void logIn(String username, String password) {
 		try {
 			connectionManager.send("loginAccount", username.length() + username + password);
+			this.username = username;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -94,6 +103,14 @@ public class BasicClient {
 	public void addFriend(String username) {
 		try {
 			connectionManager.send("addFriend", username);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void sendMessage(Message message, String id) {
+		try {
+			connectionManager.send("sendMessage", id + '\0' + message.signature + ": " + message.body);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
