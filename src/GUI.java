@@ -1,13 +1,10 @@
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.security.DigestException;
-import java.util.concurrent.TimeUnit;
 
 public class GUI extends Frame implements Runnable, ActionListener {
 
@@ -15,6 +12,12 @@ public class GUI extends Frame implements Runnable, ActionListener {
 	private JFrame frame;
 	StartMenu startMenu;
 	UserPage userPage;
+
+	public enum OptionType {
+		INPUT_NAME,
+		NO_MATCH,
+		FOUND_MATCH
+	}
 
 	public GUI(BasicClient client) {
 
@@ -43,15 +46,27 @@ public class GUI extends Frame implements Runnable, ActionListener {
 		frame.setLayout(new BorderLayout());
 		frame.add(userPage.panel, BorderLayout.CENTER);
 		frame.validate();
-
-		Thread thread = new Thread(new ActionListener(this));
-		thread.start();
-
 	}
 
-	public void addFriendOption() {
-		String username = JOptionPane.showInputDialog(frame, "Enter Friend's Username:");
-		System.out.println(username);
+	public void addFriendOption(OptionType type, String name) {
+
+		switch (type) {
+			case INPUT_NAME:
+				String username = JOptionPane.showInputDialog(frame, "Enter Friend's Username:");
+				if (username.length() > 0)
+					client.addFriend(username);
+				break;
+			case FOUND_MATCH:
+				userPage.listModel.addElement(name);
+				userPage.updateChats();
+				revalidate();
+				JOptionPane.showMessageDialog(frame, "Friend Added Successfully");
+				break;
+			case NO_MATCH:
+				JOptionPane.showMessageDialog(frame, "Friend Could Not Be Added", "Friend Not Found", JOptionPane.ERROR_MESSAGE);
+				break;
+		}
+
 	}
 
 	private static class StartMenu {
@@ -121,20 +136,28 @@ public class GUI extends Frame implements Runnable, ActionListener {
 
 	}
 
-	public static class UserPage {
+
+
+	// ---------------------------------------------
+
+
+
+	private class UserPage {
 
 		public JPanel panel;
+
 		public JList<String> list;
 		public  JButton addFriend;
-
-		private int currentIndex;
+		public JScrollPane scrollPane;
+		DefaultListModel<String> listModel;
 
 		public JLabel testLabel;
 
 		UserPage() {
 			panel = new JPanel();
+			listModel = new DefaultListModel<>();
+			updateChats();
 			panel = userPagePanel();
-			currentIndex = 0;
 		}
 
 		public JPanel userPagePanel() {
@@ -161,11 +184,7 @@ public class GUI extends Frame implements Runnable, ActionListener {
 
 			JPanel channels = new JPanel();
 			channels.setLayout(new BoxLayout(channels, BoxLayout.PAGE_AXIS));
-			DefaultListModel<String> listModel = new DefaultListModel<>();
-			for (int i = 0; i < 50; i++)
-				listModel.addElement("Test");
-			list = new JList<>(listModel);
-			JScrollPane scrollPane = new JScrollPane(list);
+
 			channels.add(scrollPane);
 			c.weighty = 1;
 			c.gridx = 0;
@@ -184,44 +203,29 @@ public class GUI extends Frame implements Runnable, ActionListener {
 			return panel;
 		}
 
+		public void updateChats() {
+			list = new JList<>(listModel);
+			ListSelectionModel listSelectionModel = list.getSelectionModel();
+			listSelectionModel.addListSelectionListener(new SharedListSelectionHandler());
+			scrollPane = new JScrollPane(list);
+		}
+
 		public void selectedChat(int index)
 		{
 			testLabel.setText(Integer.toString(index));
 		}
 
-		public synchronized void updateTab(int index) {
-			if (index != currentIndex)
-			{
-				currentIndex = index;
-				selectedChat(index);
-			}
-		}
-
-	}
-
-	public static class ActionListener implements Runnable {
-
-		private GUI gui;
-
-		ActionListener(GUI gui) {
-			this.gui = gui;
-		}
-
-		public void onEvent() {
-			while (true) {
-				if (gui.userPage != null) {
-					gui.userPage.updateTab(gui.userPage.list.getSelectedIndex());
+		class SharedListSelectionHandler implements ListSelectionListener {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				if (e.getValueIsAdjusting())
+				{
+					ListSelectionModel lsm = (ListSelectionModel) e.getSource();
+					selectedChat(lsm.getSelectedIndices()[0]);
 				}
-
-				// if (some other stuff to listen to)
-
 			}
 		}
 
-		@Override
-		public void run() {
-			onEvent();
-		}
 	}
 
 	@Override
@@ -238,7 +242,7 @@ public class GUI extends Frame implements Runnable, ActionListener {
 		} else if (e.getSource() == startMenu.logIn) {
 			client.logIn(startMenu.l_name.getText(), startMenu.l_password.getText());
 		} else if (e.getSource() == userPage.addFriend) {
-			addFriendOption();
+			addFriendOption(OptionType.INPUT_NAME, null);
 		}
 
 	}

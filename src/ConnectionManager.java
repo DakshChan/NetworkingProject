@@ -59,8 +59,6 @@ class ConnectionManager {
 			data += in.readLine() + "\n";
 		}
 		
-		System.out.println(data);
-		
 		//uncompress
 		String[] decompressed = HuffmanDecoder.decode(data);
 		String triggerName = decompressed[0];

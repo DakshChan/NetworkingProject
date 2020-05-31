@@ -187,15 +187,29 @@ class MultiThreadedServer extends Thread {
 			getOld(); //send the client all the old messages
 			
 			try{
-				System.out.println(connectionManager.alive());
 				while (connectionManager.alive()) {
 					msg = connectionManager.receive();
-					System.out.println(msg[1]);
-					synchronized (connectionManagers) {
+
+					if (msg[0].equals("addFriend")) {
+						int index = accounts.indexOf(new User(msg[1]));
+						System.out.println("index: " + index);
+						if (index != -1) {
+							System.out.println("Found");
+							User friend = accounts.get(index);
+							connectionManager.send("addFriend", friend.getName());
+						} else {
+							System.out.println("Not found");
+							connectionManager.send("addFriend", "friendNotFound");
+						}
+
+					}
+
+					/*synchronized (connectionManagers) {
 						for (ConnectionManager h: connectionManagers) {
 							h.send(msg[0], msg[1]);
 						}
-					}
+					}*/
+
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

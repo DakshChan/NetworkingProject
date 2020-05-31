@@ -41,8 +41,13 @@ public class BasicClient {
 				msg = connectionManager.receive();
 
 				if (msg[0].equals("Account") && msg[1].equals("loggedInTrue")) {
-					System.out.println("Logged In Successfully");
 					gui.logIn();
+				} else if (msg[0].equals("addFriend")) {
+					if (msg[1].equals("friendNotFound")) {
+						gui.addFriendOption(GUI.OptionType.NO_MATCH, null);
+					} else {
+						gui.addFriendOption(GUI.OptionType.FOUND_MATCH, msg[1]);
+					}
 				}
 
 			} catch (IOException e) {

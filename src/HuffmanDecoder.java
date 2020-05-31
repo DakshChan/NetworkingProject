@@ -98,7 +98,9 @@ public class HuffmanDecoder {
 
 		final int BYTE_SIZE = 8;
 		String[] data = in.split("\n");
-		
+
+		System.out.println("DATA: " + in);
+
 		String name = data[0];
 		String treeRep = data[1];
 		
