@@ -11,6 +11,7 @@ public class ServerUser extends Thread implements Comparable{
 	String hashedPassword;
 	boolean auth;
 	ArrayList<String> friends;
+	ArrayList<String> hashedServerID;
 	
 	
 	@Override
