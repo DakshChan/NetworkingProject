@@ -11,9 +11,10 @@ public class Encryption {
 	public static int n;
 	public static int g;
 
-	public static int clientKey;
-	public static int partialKey;
-	public static int sharedKey;
+	private static int clientKey;
+	//public static int partialKey;
+	public static BigInteger partialKey;
+	private static int sharedKey;
 
 	long[] p = new long[18];
 	long[][] s = new long[4][256];
@@ -24,32 +25,37 @@ public class Encryption {
 		g = PrimitiveRoot.primitiveRoot(n);
 		System.out.println(n);
 		System.out.println(g);
+		createPartialKey();
 	}
 
 	// CLIENT ONLY
-	public static void getKeys(int n1, int g1) {
-
-		// do the socket shit here
-
-		n = n1;
-		g = g1;
+	public static void getKeys(int n, int g) {
+		Encryption.n = n;
+		Encryption.g = g;
+		createPartialKey();
 	}
 
 	// CLIENT ONLY
 	public static void createPartialKey() {
 		clientKey = new Random().nextInt(n - 2) + 2;
-		partialKey = (int) (Math.pow(g, clientKey) % n);
+		System.out.println(clientKey);
+		partialKey = BigInteger.valueOf(g).modPow(BigInteger.valueOf(clientKey), BigInteger.valueOf(n));
+		System.out.println("Partial Key: " + partialKey);
 	}
 
 	// CLIENT ONLY
 	public static void createSharedKey(int partialKey) {
 		// handle getting the other client's partialKey through sockets here
 		sharedKey = (int) (Math.pow(partialKey, clientKey) % n);
+		System.out.println("Shared key: " + sharedKey);
 	}
 
-	long f(long x) {
-		long h = s[0][(int) (x >> 24)] + s[1][(int)(x >> 16 & 0xff)];
-		return (h ^ s[2][(int) (x >> 8 & 0xff)]) + s[3][(int) (x & 0xff)];
+	public void serverHandshake() {
+
+	}
+
+	public void clientHandshake() {
+
 	}
 
 	public static String encrypt(String msg) {

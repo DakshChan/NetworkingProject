@@ -10,7 +10,7 @@ class MultiStart {
 
 	public static void main(String[] args) {
 
-		//Encryption.generateKeys();
+		Encryption.generateKeys();
 		
 		ArrayList<String> channels = new ArrayList<>();
 		//import channels
@@ -190,6 +190,8 @@ class MultiThreadedServer extends Thread {
 				while (connectionManager.alive()) {
 					msg = connectionManager.receive();
 
+					System.out.println(msg[0]);
+
 					if (msg[0].equals("addFriend")) {
 						int index = accounts.indexOf(new User(msg[1]));
 						System.out.println("index: " + index);
@@ -218,6 +220,11 @@ class MultiThreadedServer extends Thread {
 							}
 
 						}
+					} else if (msg[0].equals("getKeys")) {
+						connectionManager.send("getKeys", Encryption.n + "\0" + Encryption.g);
+						connectionManager.send("createKey", Encryption.partialKey.toString());
+					} else if (msg[0].equals("createKey")) {
+						Encryption.createSharedKey(Integer.parseInt(msg[1]));
 					}
 
 				}

@@ -1,5 +1,6 @@
 //imports for network communication
 import java.io.*;
+import java.math.BigInteger;
 import java.net.*;
 import java.util.ArrayList;
 
@@ -32,6 +33,8 @@ public class BasicClient {
 			clientSocket = new Socket(LOCAL_HOST, PORT);    //create and bind a socket, and request connection
 			connectionManager = new ConnectionManager(clientSocket);
 			System.out.println("Connection to server established!");
+			connectionManager.send("getKeys", "NULL");
+			System.out.println("SENT");
 		} catch (IOException e) {
 			System.out.println("Connection to Server Failed");
 			e.printStackTrace();
@@ -42,6 +45,7 @@ public class BasicClient {
 		while(running) {
 			try {
 				msg = connectionManager.receive();
+
 
 				if (msg[0].equals("Account") && msg[1].equals("loggedInTrue")) {
 					gui.logIn();
@@ -55,6 +59,12 @@ public class BasicClient {
 						chats.add(new Chat(name, id));
 						gui.addFriendOption(GUI.OptionType.FOUND_MATCH, name);
 					}
+				} else if (msg[0].equals("getKeys")) {
+					String[] data = msg[1].split("\0");
+					Encryption.getKeys(Integer.parseInt(data[0]), Integer.parseInt(data[1]));
+					connectionManager.send("createKey", Encryption.partialKey.toString());
+				} else if (msg[0].equals("createKey")) {
+					Encryption.createSharedKey(Integer.parseInt(msg[1]));
 				}
 
 			} catch (IOException e) {
