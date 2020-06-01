@@ -6,13 +6,30 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
-class MultiStart {
-
+class MultiThreadedServer {
 	public static void main(String[] args) {
+		MultiThreadedServer server = new MultiThreadedServer();
+		//GUI HERE
+	}
+	
+	final int PORT = 5000;
 
+	ServerSocket serverSocket;
+	
+	ArrayList<ConnectionManager> connectionManagers;
+	
+	ArrayList<String> channels;
+	
+	MultiThreadedServer.FileHandler fileHandler;
+	
+	ArrayList<User> accounts;
+	
+	
+	
+	MultiThreadedServer() {
 		Encryption.generateKeys();
 		
-		ArrayList<String> channels = new ArrayList<>();
+		this.channels = new ArrayList<>();
 		//import channels
 		
 		File dir = new File(".");
@@ -25,7 +42,7 @@ class MultiStart {
 		});
 		
 		//HashMap<String, String> accounts = new HashMap<>();
-		ArrayList<User> accounts = new ArrayList<>();
+		this.accounts = new ArrayList<>();
 		
 		try {
 			BufferedReader a = new BufferedReader(new FileReader("acc.data"));
@@ -45,34 +62,6 @@ class MultiStart {
 		}
 		
 		ArrayList<File> fileArrayList = new ArrayList<File>(Arrays.asList(files));
-		
-		MultiThreadedServer server = new MultiThreadedServer(channels, fileArrayList, accounts);
-		server.start();
-		
-		//UI Code here
-		
-	}
-
-}
-
-class MultiThreadedServer extends Thread {
-	final int PORT = 5000;
-
-	ServerSocket serverSocket;//server socket for connection
-	int clientCounter = 0;
-	
-	ArrayList<ConnectionManager> connectionManagers;
-	
-	ArrayList<String> channels;
-	
-	MultiThreadedServer.FileHandler fileHandler;
-	
-	ArrayList<User> accounts;
-	
-	MultiThreadedServer(ArrayList<String> channels, ArrayList<File> files, ArrayList<User> accounts) {
-		this.channels = channels;
-		this.fileHandler = new MultiThreadedServer.FileHandler(channels, files);
-		this.accounts = accounts;
 	}
 
 	public void start() {
@@ -123,53 +112,6 @@ class MultiThreadedServer extends Thread {
 			try {
 				while (!auth) {
 					msg = connectionManager.receive();
-
-					if (msg[0].equals("createAccount")) {
-
-						int userNameLength = Integer.parseInt(msg[1].substring(0,1));
-						msg[1] = msg[1].substring(1);
-						username = msg[1].substring(0,userNameLength);
-						String password = msg[1].substring(userNameLength);
-
-						try {
-							password = Hash.hashPassword(username, password);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-
-						accounts.add(new User(username, password));
-
-						BufferedWriter w = new BufferedWriter(new FileWriter("acc.data", true));
-						w.write(username + ":" + password);
-						w.newLine();
-						w.flush();
-						w.close();
-						
-						connectionManager.send("Account", "loggedInTrue");
-						auth = true;
-
-					} else if (msg[0].equals("loginAccount")) {
-
-						int userNameLength = Integer.parseInt(msg[1].substring(0,1));
-						msg[1] = msg[1].substring(1);
-						username = msg[1].substring(0,userNameLength);
-						String password =  msg[1].substring(userNameLength);
-
-						//validate login
-						
-						try {
-							if (accounts.contains(new User(username, Hash.hashPassword(username, password)))) {
-								System.out.println("sent response");
-								connectionManager.send("Account", "loggedInTrue");
-								auth = true;
-							} else {
-								connectionManager.send("Account", "wrongPassword");
-							}
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-
-					}
 
 				}
 			} catch (IOException e) {
@@ -244,62 +186,6 @@ class MultiThreadedServer extends Thread {
 					}
 				}
 			}
-		}
-	}
-	
-	class FileHandler extends Thread {
-		ArrayList<File> files;
-		ArrayList<BufferedWriter> writers;
-		ArrayList<String> channels;
-		
-		FileHandler(ArrayList<String> channels, ArrayList<File> files) {
-			this.channels = channels;
-			this.files = files;
-		}
-		
-		@Override
-		public void start() {
-			for (File f: files) {
-				try {
-					writers.add(new BufferedWriter(new FileWriter(f.getAbsolutePath(), true)));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		
-		public void append(String channelName, String data) {
-			int i = channels.indexOf(channelName);
-			if (i != -1) {
-				BufferedWriter w = writers.get(i);
-				synchronized (w) {
-					try {
-						w.write(data);
-						w.write("\n");
-						w.flush();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		
-		public synchronized ArrayList<String> readAll(String channelName) {
-			int i = channels.indexOf(channelName);
-			if (i != -1) {
-				try {
-					ArrayList<String> history = new ArrayList<>();
-					BufferedReader r = new BufferedReader(new FileReader(files.get(i).getAbsolutePath()));
-					String line;
-					while ((line = r.readLine()) != null) {
-						history.add(line);
-					}
-					return history;
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			return null;
 		}
 	}
 }
